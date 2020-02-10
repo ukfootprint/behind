@@ -1,6 +1,6 @@
 # hidden
 
-This is a python3 recipe for Deian 10 will create a LetsEncrypt SSL secured Nginx reverse proxy for a single host.
+This is a python3 recipe for Debian 10 will create a LetsEncrypt SSL secured Nginx reverse proxy for a single host.
 
 First set up a basic install of Debian 10 with python 3, Git & SSH (optional) then clone this repository:
 
