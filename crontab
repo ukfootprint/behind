@@ -21,6 +21,7 @@
 # 0 5 * * 1 tar -zcf /var/backups/home.tgz /home/
 #
 # For more information see the manual pages of crontab(5) and cron(8)
-#
+# https://crontab.guru/#0_*/12_*_*_*
+# https://stackoverflow.com/a/16289693/213124
 # m h  dom mon dow   command
-15 03 * * * monthlyCronjob.sh
+23 */7 * * 2,6 sleep $[($RANDOM \% 60) + 1]m ; monthlyCronjob.sh
