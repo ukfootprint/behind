@@ -8,7 +8,6 @@ systemctl stop nginx
 certbot renew
 
 # After renewing, backup the new SSL certificate.
-#tar cf /root/letsencrypt.timetabler.sansay.co.uk.tar /etc/letsencrypt
-#rclone copy /root/letsencrypt.timetabler.sansay.co.uk.tar dhicks:Code/timetabler/letsencrypt.timetabler.sansay.co.uk.tar
+#tar cf /root/...
 
 systemctl start nginx
