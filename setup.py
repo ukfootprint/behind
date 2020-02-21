@@ -1,4 +1,5 @@
-# From https://www.github.com/dhicks6345789/remote-gateway
+# Adapted from https://github.com/dhicks6345789/remote-gateway
+
 #!/usr/bin/python3
 
 import os
@@ -8,7 +9,6 @@ import shutil
 # Parse any options set by the user on the command line.
 validBooleanOptions = []
 validValueOptions = ["-serverNAME", "-serverDOMAIN", "-serverIP", "-serverNETMASK",  "-serverGATEWAY", "-serverDNS1", "-serverDNS2", "-targetHostIP", "-targetHostPort"]
-# removed "-serverBROADCAST" from above - no need to specify
 
 userOptions = {}
 optionCount = 1
@@ -76,34 +76,34 @@ runIfPathMissing("/etc/resolvconf.conf", "apt-get install -y resolvconf")
 
 # First, get some host information from the user
 print("Installing...")
-getUserOption("-serverNAME", "Please enter this server's name (e.g. myserver):")
-getUserOption("-serverDOMAIN", "Please enter this server's routable domain name ( e.g. mydomain.com):")
-getUserOption("-serverIP", "Please enter this server's static IPv4 (e.g. 192.168.0.10):")
+getUserOption("-serverNAME", "Please enter this server's name (e.g. myserver)")
+getUserOption("-serverDOMAIN", "Please enter this server's routable domain name ( e.g. mydomain.com)")
+getUserOption("-serverIP", "Please enter this server's static IPv4 (e.g. 192.168.0.10)")
 
 # Next copy over hosts file and set the hostname
 print("Configuring...")
 os.system("cp hosts /etc/hosts")
 #os.system("chown root:root /etc/hosts")
 #os.system("chmod u+x /etc/hosts")
-os.system("hostnamectl set-hostname "userOptions["-serverNAME"]"."userOptions["-serverDOMAIN"]"")
+os.system("hostnamectl set-hostname" + " " + userOptions["-serverNAME"] + "." + userOptions["-serverDOMAIN"])
 replaceVariables("/etc/hosts", {"SERVERNAME":userOptions["-serverNAME"]})
 replaceVariables("/etc/hosts", {"SERVERDOMAIN":userOptions["-serverDOMAIN"]})
 replaceVariables("/etc/hosts", {"SERVERIP":userOptions["-serverIP"]})
 # Check hosts configuration 
-#os.system("hostnamectl")
+#os.system("hostnamectl > /dev/null 2>&1")
 #os.system("sleep 3")
 
 #Then get some networking info from the user
 print("Installing...")
-getUserOption("-serverNetmask", "Please enter the server's subnet mask (e.g. 255.255.254.0):")
-#getUserOption("-serverBoadcast", "Please enter the network broadcast address (e.g. 192.168.1.255):")
-getUserOption("-serverGateway", "Please enter this server's gateway  (e.g. 192.168.1.254):")
-getUserOption("-serverDNS1", "Please enter this server's primary DNS server (e.g. 192.168.1.1):")
-getUserOption("-serverDNS2", "Please enter this server's secondary DNS server (e.g. 192.168.1.2). Just press Enter if there is no secondary DNS server on your network:")
+getUserOption("-serverNetmask", "Please enter the server's subnet mask (e.g. 255.255.254.0)")
+#getUserOption("-serverBoadcast", "Please enter the network broadcast address (e.g. 192.168.1.255)")
+getUserOption("-serverGateway", "Please enter this server's gateway  (e.g. 192.168.1.254)")
+getUserOption("-serverDNS1", "Please enter this server's primary DNS server (e.g. 192.168.1.1)")
+getUserOption("-serverDNS2", "Please enter this server's secondary DNS server (e.g. 192.168.1.2). Press RETURN if none")
 
 # Next copy over network config file and set a static IP
 print("Configuring...")
-os.system("systemctl stop NetworkManager")
+os.system("systemctl stop networking")
 os.system("cp interfaces /etc/network/interfaces")
 #os.system("chown root:root /etc/network/interfaces")
 #os.system("chmod u+x /etc/network/interfaces")
@@ -113,7 +113,7 @@ replaceVariables("/etc/network/interfaces", {"GATEWAY":userOptions["-serverGatew
 replaceVariables("/etc/network/interfaces", {"DNS1":userOptions["-serverDNS1"]})
 replaceVariables("/etc/network/interfaces", {"DNS2":userOptions["-serverDNS2"]})
 os.system("systemctl restart networking")
-print("Installing...")
+os.system("sleep 3") 
 
 #Finally get details of the reverse proxied host from the user
 getUserOption("-targetHostIP", "Please enter the target host IPv4 for Nginx to reverse proxy (e.g. 192.168.1.12)")
@@ -134,33 +134,38 @@ os.system("ufw allow OpenSSH > /dev/null 2>&1")
 os.system("ufw allow 'Nginx Full' > /dev/null 2>&1")
 os.system("echo y | ufw enable > /dev/null 2>&1")
 
-#Finally get details of host to proxy for 
+#Finally get details of host to reverse proxy 
 print("Configuring...")
 getUserOption("-targetHostIP", "Please enter the host (IPv4) that Nginx will reverse proxy to (e.g. 192.168.1.12):")
 getUserOption("-targetHostPort", "Please enter the port # that Nginx will reverse proxy to (e.g. 8080):")
 
-# Copy over the optimised Nginx config files and start the service
+# Copy over the optimised Nginx config files and insert user supplied values 
 os.system("cp nginx.conf /etc/nginx/nginx.conf")
 #os.system("chown root:root /etc/nginx/nginx.conf")
 #os.system("chmod u+x /etc/nginx/nginx.conf")
-os.system("cp sites-available-template /etc/nginx/sites-available/"userOptions["-serverNAME"]"."userOptions["-serverDOMAIN"]"")
-replaceVariables("/etc/nginx/sites-available/"userOptions["-serverNAME"]"."userOptions["-serverDOMAIN"]"", {"SERVERNAME"."SERVERDOMAIN":userOptions["-serverNAME"].userOptions["-serverDOMAIN"]})
-replaceVariables("/etc/nginx/sites-available/"userOptions["-serverNAME"]"."userOptions["-serverDOMAIN"]"", {"HOSTIP":userOptions["-targetHostIP"]})
-replaceVariables("/etc/nginx/sites-available/"userOptions["-serverNAME"]"."userOptions["-serverDOMAIN"]"", {"PORT":userOptions["-targetHostPort"]})
-#os.system("chown root:root /etc/nginx/sites-available/"userOptions["-serverNAME"]"."userOptions["-serverDOMAIN"]"")
-#os.system("chmod u+x /etc/nginx/sites-available/"userOptions["-serverNAME"]"."userOptions["-serverDOMAIN"]"")
+os.system("cp sites-available-template /etc/nginx/sites-available/" + userOptions["-serverNAME"] + "." + userOptions["-serverDOMAIN"])
+replaceVariables("/etc/nginx/sites-available/" + userOptions["-serverNAME"] + "." + userOptions["-serverDOMAIN"], {"SERVERNAME":userOptions["-serverNAME"]})
+replaceVariables("/etc/nginx/sites-available/" + userOptions["-serverNAME"] + "." + userOptions["-serverDOMAIN"], {"SERVERDOMAIN":userOptions["-serverDOMAIN"]})
+replaceVariables("/etc/nginx/sites-available/" + userOptions["-serverNAME"] + "." + userOptions["-serverDOMAIN"], {"HOSTIP":userOptions["-targetHostIP"]})
+replaceVariables("/etc/nginx/sites-available/" + userOptions["-serverNAME"] + "." + userOptions["-serverDOMAIN"], {"PORT":userOptions["-targetHostPort"]})
+#os.system("chown root:root /etc/nginx/sites-available/" + userOptions["-serverNAME"] + "." + userOptions["-serverDOMAIN"])
+#os.system("chmod u+x /etc/nginx/sites-available/" + userOptions["-serverNAME"] + "." + userOptions["-serverDOMAIN"])
+os.system("ln -s /etc/nginx/sites-available/" + userOptions["-serverNAME"] + "." + userOptions["-serverDOMAIN"] + " /etc/nginx/sites-enabled/")
 
-print("Reloading Nginx configuarion...")
+# Set up SSL certificate
+# If site already exists do "certbot certonly --nginx"...
+runIfPathMissing("/etc/letsencrypt/" + userOptions["-serverNAME"] + "." + userOptions["-serverDOMAIN"], "certbot --nginx -d " + userOptions["-serverNAME"] + "." + userOptions["-serverDOMAIN"])
+# put in a check to not run this if the above has just run
+os.system("certbot certonly --nginx")
 os.system("systemctl reload nginx")
 
+# Restart Nginx
+print("Restarting Nginx with new configuarion...")
+os.system("systemctl restart nginx")
 
 # Set up Cron to run the certbot renew
 copyfile("crontab", "/var/spool/cron/crontabs/root", mode="0600")
 os.system("dos2unix monthlyCronjob.sh > /dev/null 2>&1")
-
-# Backup monhlyCronjob.sh
-#os.system("cp monthlyCronjob.sh /etc/guacamole")
-#os.system("chmod u+x /etc/guacamole/monthlyCronjob.sh")
 
 # Restart Cron
 os.system("/etc/init.d/cron restart")

@@ -8,10 +8,11 @@ auto lo
 iface lo inet loopback
 
 # The primary network interface
-allow-hotplug eth0
-#iface eth0 inet dhcp
+#allow-hotplug eth0
+auto eth0
 iface eth0 inet static
 	address <<SERVERIP>>
 	netmask <<NETMASK>>
 	gateway <<GATEWAY>>
 	dns-nameserver <<DNS1>> <<DNS2>>
+
