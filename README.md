@@ -1,6 +1,6 @@
 # hidden
 
-This is a python3 recipe for setting up a Debian 10 server as a reverse proxy for a single virtual host using  a LetsEncrypt SSL secured Nginx . User could extend it to handle multiple virtual hosts as necessary.
+This is a python3 recipe for setting up a Debian 10 server as a reverse proxy for a single virtual host using  a LetsEncrypt SSL secured Nginx instance. User could extend it to handle multiple virtual hosts as necessary.
 
 First set up a basic install of Debian 10 with python 3, Git & SSH (optional; if you don't have console access) then clone this repository:
 
