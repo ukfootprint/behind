@@ -14,7 +14,7 @@ and run the setup script as the root user:
 
 $ python3 setup.py
 
-Fill in the required info when prompted and when complete these connection to your reverse proxied server / service.
+Fill in the required info as requested and when complete test your reverse proxied server / service from your remote browser.
 
 Notes - 
 
